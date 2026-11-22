@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>¿Cuánto vale tu casa? · Canaima</title>
+<meta name="description" content="Calcula en 2 minutos el valor de mercado de tu vivienda en Madrid con datos reales de cada barrio. Por Canaima Inmobiliaria.">
+<meta name="theme-color" content="#F6F1EC">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ CONFIGURACIÓN ============ */
+:root{
+  --crema:#F6F1EC;
+  --beige:#D2BEB0;
+  --beige-2:#C6B4A5;
+  --taupe:#8A7566;
+  --tinta:#3A322C;
+  --tinta-2:#6E5F55;
+  --blanco:#FFFFFF;
+  --linea:rgba(58,50,44,.12);
+  --ok:#6F8A6B;
+  --radio:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:Montserrat,system-ui,sans-serif;background:var(--crema);color:var(--tinta);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input{font:inherit;color:inherit}
+
+.app{min-height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative}
+
+/* Cabecera */
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;position:sticky;top:0;background:var(--crema);z-index:5}
+.marca{display:flex;flex-direction:column;align-items:flex-start;line-height:1;user-select:none}
+.marca b{font-weight:300;letter-spacing:.32em;font-size:19px}
+.marca small{font-weight:400;letter-spacing:.42em;font-size:7.5px;margin-top:4px;color:var(--tinta-2)}
+.atras{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--linea);transition:opacity .2s}
+.atras[hidden]{display:grid;visibility:hidden}
+.paso-n{font-size:12px;font-weight:500;color:var(--tinta-2);letter-spacing:.08em}
+.barra{height:3px;background:var(--linea);margin:0 20px;border-radius:3px;overflow:hidden}
+.barra i{display:block;height:100%;width:0;background:var(--tinta);transition:width .45s cubic-bezier(.2,.8,.2,1)}
+
+/* Pantallas */
+.pantallas{flex:1;position:relative;overflow-x:clip}
+.pantalla{position:absolute;inset:0;padding:28px 20px 120px;opacity:0;transform:translateX(24px);pointer-events:none;transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1);overflow-y:auto}
+.pantalla.activa{opacity:1;transform:none;pointer-events:auto;position:relative}
+.pantalla.sale{transform:translateX(-24px)}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px}
+h1{font-size:30px;line-height:1.12;font-weight:300;letter-spacing:-.01em}
+h1 strong{font-weight:700}
+h2{font-size:25px;line-height:1.18;font-weight:300;margin-bottom:6px}
+h2 strong{font-weight:700}
+.sub{font-size:14.5px;line-height:1.55;color:var(--tinta-2);margin-bottom:22px}
+
+/* Portada */
+.portada{padding-top:8px}
+.foto{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/3.1;margin-bottom:26px;background:var(--beige)}
+.foto img{width:100%;height:100%;object-fit:cover;display:block}
+.foto .vertical{position:absolute;right:12px;bottom:14px;writing-mode:vertical-rl;transform:rotate(180deg);color:#fff;font-size:10.5px;letter-spacing:.12em;opacity:.9}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 6px}
+.pill{border:1.5px solid var(--tinta);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600}
+.nota{font-size:12px;color:var(--tinta-2);line-height:1.5;margin-top:16px}
+
+/* Opciones tipo tarjeta */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid.uno{grid-template-columns:1fr}
+.op{background:var(--blanco);border:1.5px solid transparent;border-radius:var(--radio);padding:16px 14px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:84px;box-shadow:0 1px 0 var(--linea);transition:border-color .15s,transform .15s,background .15s}
+.op:active{transform:scale(.98)}
+.op .ico{width:40px;height:40px;border-radius:12px;background:var(--crema);display:grid;place-items:center;flex:none}
+.ico svg{width:20px;height:20px;color:var(--tinta)}
+.op.sel .ico{background:var(--tinta)}.op.sel .ico svg{color:#fff}
+.op .t{font-weight:600;font-size:14.5px}
+.op .d{font-size:12px;color:var(--tinta-2);line-height:1.4}
+.op.sel{border-color:var(--tinta);background:#FFFDFB}
+.op.fila{flex-direction:row;align-items:center;gap:14px;min-height:0;padding:16px}
+.op.fila .tx{display:flex;flex-direction:column;gap:3px}
+
+/* Chips */
+.buscar{width:100%;background:var(--blanco);border:1.5px solid var(--linea);border-radius:14px;padding:14px 16px;font-size:15px;outline:none;margin-bottom:14px}
+.buscar:focus{border-color:var(--tinta)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--blanco);border:1.5px solid var(--linea);border-radius:999px;padding:10px 15px;font-size:13.5px;font-weight:500;transition:all .15s}
+.chip.sel{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.chip small{opacity:.55;font-weight:400;margin-left:4px}
+.resultados-busqueda .chip{display:inline-flex}
+.vacio{font-size:13px;color:var(--tinta-2);padding:8px 2px}
+
+/* Metros */
+.metros{background:var(--blanco);border-radius:22px;padding:26px 20px 22px;text-align:center;margin-bottom:14px}
+.metros .num{display:flex;align-items:baseline;justify-content:center;gap:6px}
+.metros input[type=number]{width:150px;border:0;outline:0;background:none;text-align:center;font-size:56px;font-weight:300;letter-spacing:-.02em;-moz-appearance:textfield}
+.metros input::-webkit-outer-spin-button,.metros input::-webkit-inner-spin-button{-webkit-appearance:none}
+.metros .u{font-size:20px;color:var(--tinta-2)}
+input[type=range]{width:100%;margin-top:14px;accent-color:var(--tinta);height:28px}
+.steppers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stepper{background:var(--blanco);border-radius:var(--radio);padding:14px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.stepper span{font-size:12.5px;color:var(--tinta-2);font-weight:500}
+.stepper .ctl{display:flex;align-items:center;gap:16px}
+.stepper button{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--linea);font-size:18px;line-height:1}
+.stepper b{font-size:24px;font-weight:600;min-width:28px;text-align:center}
+
+.bloque{margin-top:22px}
+.bloque h3{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);margin-bottom:10px}
+.seg{display:flex;background:var(--blanco);border-radius:14px;padding:4px;gap:4px}
+.seg button{flex:1;padding:12px 6px;border-radius:11px;font-size:13.5px;font-weight:500;transition:all .15s}
+.seg button.sel{background:var(--tinta);color:#fff}
+
+/* Extras */
+.extras{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ex{background:var(--blanco);border:1.5px solid transparent;border-radius:16px;padding:14px;display:flex;align-items:center;gap:10px;text-align:left;font-size:13.5px;font-weight:500;transition:all .15s;position:relative}
+.ex .ico{display:grid;place-items:center}.ex .ico svg{width:19px;height:19px}
+.ex.sel{border-color:var(--tinta)}
+.ex.sel::after{content:"✓";position:absolute;top:8px;right:10px;font-size:11px;font-weight:700}
+
+/* Formulario */
+.campo{margin-bottom:12px}
+.campo label{display:block;font-size:12px;font-weight:600;color:var(--tinta-2);margin:0 0 6px 4px}
+.campo input{width:100%;background:var(--blanco);border:1.5px solid var(--linea);border-radius:14px;padding:15px 16px;font-size:16px;outline:none;transition:border-color .15s}
+.campo input:focus{border-color:var(--tinta)}
+.campo.error input{border-color:#B5544A}
+.campo .err{display:none;font-size:11.5px;color:#B5544A;margin:5px 0 0 4px}
+.campo.error .err{display:block}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:12px;line-height:1.5;color:var(--tinta-2);margin-top:8px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--tinta);flex:none;margin-top:1px}
+.check a{color:var(--tinta)}
+.check.error{color:#B5544A}
+.privado{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--tinta-2);margin-top:18px}
+
+/* Pie con botón */
+.pie{position:fixed;left:0;right:0;bottom:0;padding:14px 20px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--crema) 70%,rgba(246,241,236,0));z-index:6}
+.pie .in{max-width:520px;margin:0 auto}
+.btn{width:100%;background:var(--tinta);color:#fff;border-radius:999px;padding:18px;font-size:15px;font-weight:600;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .2s,transform .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.3;cursor:default}
+.btn.claro{background:var(--blanco);color:var(--tinta);border:1.5px solid var(--tinta)}
+
+/* Cargando */
+.cargando{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:60vh;gap:22px}
+.anillo{width:64px;height:64px;border-radius:50%;border:2px solid var(--beige);border-top-color:var(--tinta);animation:gira 1s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+.cargando p{font-size:14px;color:var(--tinta-2);min-height:22px;transition:opacity .25s}
+
+/* Resultado */
+.res-cab{background:var(--beige);border-radius:24px;padding:26px 22px 24px;color:#fff;position:relative;overflow:hidden}
+.res-cab .eyebrow{color:rgba(255,255,255,.85)}
+.res-cab .valor{font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.05;margin:4px 0 10px}
+.res-cab .rango{font-size:13.5px;opacity:.95}
+.res-cab .rango b{font-weight:600}
+.res-cab .vertical{position:absolute;right:12px;top:18px;writing-mode:vertical-rl;font-size:10px;letter-spacing:.12em;opacity:.8}
+.res-cab .pills{margin:16px 0 0}
+.res-cab .pill{border-color:#fff;font-size:11.5px;padding:6px 12px}
+.tarjeta{background:var(--blanco);border-radius:20px;padding:20px;margin-top:12px}
+.tarjeta h3{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--taupe);margin-bottom:14px}
+.compara .fila{display:grid;grid-template-columns:minmax(0,92px) 1fr auto;align-items:center;gap:10px;margin-bottom:12px;font-size:12.5px}
+.compara .fila:last-child{margin-bottom:0}
+.compara .bar{height:10px;background:var(--crema);border-radius:6px;overflow:hidden}
+.compara .bar i{display:block;height:100%;border-radius:6px;background:var(--beige-2);width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.compara .fila.tu .bar i{background:var(--tinta)}
+.compara .fila.tu{font-weight:700}
+.compara .v{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:12px}
+.compara .fila>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.factores{list-style:none}
+.factores li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--linea);font-size:13.5px}
+.factores li:last-child{border-bottom:0}
+.factores .mas{color:var(--ok);font-weight:600}
+.factores .menos{color:#B5544A;font-weight:600}
+.dato{display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--tinta-2)}
+.dato b{color:var(--tinta)}
+.cta{background:var(--tinta);color:#fff;border-radius:24px;padding:26px 22px;margin-top:12px}
+.cta h2{color:#fff}
+.cta p{font-size:14px;line-height:1.55;opacity:.85;margin:6px 0 18px}
+.cta .btn{background:#fff;color:var(--tinta)}
+.cta .btn + .btn{margin-top:10px;background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)}
+.cta.hecho .btn{display:none}
+.cta .gracias{display:none;font-size:14px;line-height:1.55}
+.cta.hecho .gracias{display:block}
+.legal{font-size:11px;line-height:1.55;color:var(--tinta-2);margin-top:18px;padding:0 4px}
+.reiniciar{display:block;margin:18px auto 0;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+@media (min-width:600px){
+  .app{padding-top:20px}
+  h1{font-size:36px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <button class="atras" id="atras" aria-label="Atrás" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="marca" aria-label="Canaima Inmobiliaria"><b>CANAIMA</b><small>INMOBILIARIA</small></div>
+    <span class="paso-n" id="pasoN"></span>
+  </header>
+  <div class="barra"><i id="barra"></i></div>
+
+  <main class="pantallas" id="pantallas">
+
+    <!-- 0 · Portada -->
+    <section class="pantalla portada activa" data-paso="inicio">
+      <div class="foto">
+        <img src="hero.jpg" alt="Salón de una vivienda en Madrid">
+        <span class="vertical">Canaima - Valoración</span>
+      </div>
+      <p class="eyebrow">Valoración gratuita</p>
+      <h1>¿Cuánto vale <strong>tu casa</strong> en Madrid?</h1>
+      <p class="sub" style="margin-top:12px">Responde unas preguntas rápidas y te damos un valor estimado con datos reales del mercado de tu barrio.</p>
+      <div class="pills"><span class="pill">2 minutos</span><span class="pill">131 barrios</span><span class="pill">Mercado actualizado</span></div>
+    </section>
+
+    <!-- 1 · Zona -->
+    <section class="pantalla" data-paso="zona">
+      <p class="eyebrow">Ubicación</p>
+      <h2>¿En qué <strong>barrio</strong> está tu casa?</h2>
+      <p class="sub">Escríbelo o elige primero el distrito.</p>
+      <input class="buscar" id="buscar" type="search" placeholder="Busca tu barrio, p. ej. Almagro" autocomplete="off">
+      <div id="zonaLista"></div>
+    </section>
+
+    <!-- 2 · Tipo -->
+    <section class="pantalla" data-paso="tipo">
+      <p class="eyebrow">La vivienda</p>
+      <h2>¿Qué <strong>tipo</strong> de vivienda es?</h2>
+      <p class="sub">Elige la opción que mejor la describe.</p>
+      <div class="grid" data-grupo="tipo">
+        <button class="op" data-v="piso"><span class="ico"><i data-lucide="building-2"></i></span><span class="t">Piso</span><span class="d">En edificio</span></button>
+        <button class="op" data-v="atico"><span class="ico"><i data-lucide="sunset"></i></span><span class="t">Ático</span><span class="d">Última planta</span></button>
+        <button class="op" data-v="duplex"><span class="ico"><i data-lucide="layers"></i></span><span class="t">Dúplex</span><span class="d">Dos alturas</span></button>
+        <button class="op" data-v="bajo"><span class="ico"><i data-lucide="trees"></i></span><span class="t">Bajo</span><span class="d">Planta calle o con patio</span></button>
+        <button class="op" data-v="estudio"><span class="ico"><i data-lucide="sofa"></i></span><span class="t">Estudio o loft</span><span class="d">Espacio abierto</span></button>
+        <button class="op" data-v="chalet"><span class="ico"><i data-lucide="house"></i></span><span class="t">Chalet o casa</span><span class="d">Independiente o adosado</span></button>
+      </div>
+    </section>
+
+    <!-- 3 · Tamaño -->
+    <section class="pantalla" data-paso="tamano">
+      <p class="eyebrow">Tamaño</p>
+      <h2>¿Cuántos <strong>metros</strong> tiene?</h2>
+      <p class="sub">Metros construidos, como aparecen en la escritura o el catastro.</p>
+      <div class="metros">
+        <div class="num"><input type="number" id="m2" inputmode="numeric" min="20" max="1500" value="110" aria-label="Metros cuadrados"><span class="u">m²</span></div>
+        <input type="range" id="m2r" min="25" max="600" step="5" value="110" aria-label="Ajustar metros">
+      </div>
+      <div class="steppers">
+        <div class="stepper"><span>Dormitorios</span><div class="ctl"><button data-step="dorm" data-d="-1">−</button><b id="dorm">3</b><button data-step="dorm" data-d="1">+</button></div></div>
+        <div class="stepper"><span>Baños</span><div class="ctl"><button data-step="banos" data-d="-1">−</button><b id="banos">2</b><button data-step="banos" data-d="1">+</button></div></div>
+      </div>
+    </section>
+
+    <!-- 4 · Estado -->
+    <section class="pantalla" data-paso="estado">
+      <p class="eyebrow">Estado</p>
+      <h2>¿Cómo está <strong>por dentro</strong>?</h2>
+      <p class="sub">Es lo que más mueve el precio después de la ubicación.</p>
+      <div class="grid uno" data-grupo="estado">
+        <button class="op fila" data-v="reformar"><span class="ico"><i data-lucide="hammer"></i></span><span class="tx"><span class="t">Para reformar</span><span class="d">Instalaciones antiguas, necesita obra</span></span></button>
+        <button class="op fila" data-v="bueno"><span class="ico"><i data-lucide="smile"></i></span><span class="tx"><span class="t">Buen estado</span><span class="d">Para entrar a vivir, sin reforma reciente</span></span></button>
+        <button class="op fila" data-v="reformado"><span class="ico"><i data-lucide="sparkles"></i></span><span class="tx"><span class="t">Reformado</span><span class="d">Reforma en los últimos 10 años</span></span></button>
+        <button class="op fila" data-v="estrenar"><span class="ico"><i data-lucide="gem"></i></span><span class="tx"><span class="t">A estrenar, reforma integral de diseño</span><span class="d">Calidades altas, proyecto de interiorismo</span></span></button>
+      </div>
+    </section>
+
+    <!-- 5 · Edificio -->
+    <section class="pantalla" data-paso="edificio">
+      <p class="eyebrow">Edificio</p>
+      <h2>Planta y <strong>orientación</strong></h2>
+      <p class="sub">Tres toques y seguimos.</p>
+      <div class="bloque" style="margin-top:6px"><h3>Planta</h3>
+        <div class="seg" data-grupo="planta"><button data-v="baja">Baja</button><button data-v="1">1ª</button><button data-v="2-4" class="sel">2ª a 4ª</button><button data-v="5+">5ª o más</button></div>
+      </div>
+      <div class="bloque"><h3>¿Exterior o interior?</h3>
+        <div class="seg" data-grupo="orient"><button data-v="exterior" class="sel">Exterior</button><button data-v="interior">Interior</button></div>
+      </div>
+      <div class="bloque"><h3>¿Tiene ascensor?</h3>
+        <div class="seg" data-grupo="ascensor"><button data-v="si" class="sel">Sí</button><button data-v="no">No</button></div>
+      </div>
+    </section>
+
+    <!-- 6 · Extras -->
+    <section class="pantalla" data-paso="extras">
+      <p class="eyebrow">Extras</p>
+      <h2>¿Qué tiene <strong>tu casa</strong>?</h2>
+      <p class="sub">Marca todo lo que tenga. Si no tiene nada, sigue sin marcar.</p>
+      <div class="extras" id="extras"></div>
+    </section>
+
+    <!-- 7 · Contacto -->
+    <section class="pantalla" data-paso="contacto">
+      <p class="eyebrow">Último paso</p>
+      <h2>¿A nombre de <strong>quién</strong> preparamos la valoración?</h2>
+      <p class="sub">Tu valoración está lista. Déjanos tus datos para verla.</p>
+      <form id="form" novalidate>
+        <div class="dos">
+          <div class="campo"><label for="nombre">Nombre</label><input id="nombre" autocomplete="given-name" required><p class="err">Escribe tu nombre</p></div>
+          <div class="campo"><label for="apellidos">Apellidos</label><input id="apellidos" autocomplete="family-name" required><p class="err">Escribe tus apellidos</p></div>
+        </div>
+        <div class="campo"><label for="email">Correo electrónico</label><input id="email" type="email" inputmode="email" autocomplete="email" required><p class="err">Revisa el correo</p></div>
+        <div class="campo"><label for="tel">Teléfono</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="+34 600 000 000" required><p class="err">Revisa el teléfono</p></div>
+        <label class="check" id="checkWrap"><input type="checkbox" id="acepto"><span>Acepto la <a href="https://canaimainmobiliaria.com/politica-privacidad/" target="_blank" rel="noopener">política de privacidad</a> y que Canaima me contacte sobre mi valoración.</span></label>
+      </form>
+      <p class="privado"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Tus datos son privados. Nunca los compartimos.</p>
+    </section>
+
+    <!-- 8 · Calculando -->
+    <section class="pantalla" data-paso="calculando">
+      <div class="cargando"><div class="anillo"></div><p id="msgCarga">Analizando tu barrio…</p></div>
+    </section>
+
+    <!-- 9 · Resultado -->
+    <section class="pantalla" data-paso="resultado">
+      <div class="res-cab">
+        <span class="vertical" id="resZona"></span>
+        <p class="eyebrow" id="resHola">Tu valoración</p>
+        <div class="valor" id="resValor">0 €</div>
+        <p class="rango">Rango de mercado: <b id="resMin"></b> a <b id="resMax"></b></p>
+        <div class="pills" id="resPills"></div>
+      </div>
+
+      <div class="cta" id="cta" hidden>
+        <h2>¿Quieres que te <strong>sigamos asesorando</strong>?</h2>
+        <p>Una valoración online es un punto de partida. Si estás pensando en vender, te preparamos una valoración profesional en persona, sin compromiso.</p>
+        <button class="btn" id="ctaWa">Contacta con nosotros</button>
+        <button class="btn" id="ctaTel">Prefiero que me llaméis</button>
+        <p class="gracias">Perfecto, ya tenemos tu solicitud. Un asesor de Canaima te contactará en menos de 24 horas.</p>
+      </div>
+
+      <div class="tarjeta compara"><h3>Tu casa frente al mercado</h3><div id="compara"></div></div>
+      <div class="tarjeta"><h3>Qué ha influido en el precio</h3><ul class="factores" id="factores"></ul></div>
+      <div class="tarjeta"><div class="dato"><span class="ico"><i data-lucide="trending-up"></i></span><span id="tendencia"></span></div></div>
+
+      <p class="legal">Estimación orientativa basada en precios medios de oferta por barrio (informe de precios de idealista, septiembre 2026) y en operaciones comparables de Canaima. No sustituye a una tasación oficial. El precio final depende de factores que solo se ven en una visita: luz, distribución, calidades y estado del edificio.</p>
+      <button class="reiniciar" id="reiniciar">Valorar otra vivienda</button>
+    </section>
+  </main>
+
+  <footer class="pie" id="pie"><div class="in"><button class="btn" id="siguiente">Empezar valoración <span aria-hidden="true">→</span></button></div></footer>
+</div>
+
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+/* ================= CONFIGURACIÓN =================
+   SHEETS_URL: URL del Web App de Google Apps Script (ver apps-script.gs)
+   UMBRAL_CTA: a partir de este valor se ofrece el asesoramiento
+   WHATSAPP / TELEFONO: contacto de Canaima                            */
+const CONFIG = {
+  SHEETS_URL: "",
+  UMBRAL_CTA: 500000,
+  WHATSAPP: "34670647148",
+  TELEFONO: "+34670647148",
+};
+
+/* ===== Precio medio de oferta €/m² por barrio · idealista, septiembre 2026 =====
+   [distrito, €/m² distrito, variación anual %, [[barrio, €/m², var. anual %], ...]] */
+const ZONAS = [
+ ["Arganzuela",6384,6.4,[["Acacias",6177,2.2],["Chopera",5904,3.5],["Delicias",6515,13.6],["Imperial",6632,10.1],["Legazpi",6913,12.0],["Palos de la Frontera",6429,4.5]]],
+ ["Barajas",4971,8.8,[["Alameda de Osuna",5458,10.4],["Casco Histórico de Barajas",4853,null],["Timón",4799,null]]],
+ ["Barrio de Salamanca",10865,-1.2,[["Castellana",11923,-0.5],["Fuente del Berro",7771,2.7],["Goya",10945,2.7],["Guindalera",7336,5.2],["Lista",10647,-0.3],["Recoletos",14724,0.8]]],
+ ["Carabanchel",3829,9.4,[["Abrantes",3507,15.9],["Buena Vista",3541,12.0],["Comillas",4766,8.7],["Opañel",4012,5.5],["Pau de Carabanchel",4425,8.0],["Puerta Bonita",3577,13.1],["San Isidro",3824,5.0],["Vista Alegre",3753,11.0]]],
+ ["Centro",7771,3.7,[["Chueca-Justicia",9827,7.2],["Huertas-Cortes",8667,6.3],["Lavapiés-Embajadores",6292,1.9],["Malasaña-Universidad",7924,3.3],["Palacio",7348,4.9],["Sol",7735,0.8]]],
+ ["Chamartín",8127,4.6,[["Bernabéu-Hispanoamérica",8719,12.1],["Castilla",7336,9.4],["Ciudad Jardín",7244,3.0],["El Viso",9402,2.2],["Nueva España",8409,5.8],["Prosperidad",7127,2.9]]],
+ ["Chamberí",9159,2.6,[["Almagro",11141,-0.7],["Arapiles",8225,2.0],["Gaztambide",8265,8.5],["Nuevos Ministerios-Ríos Rosas",8707,3.6],["Trafalgar",9361,6.7],["Vallehermoso",7692,1.1]]],
+ ["Ciudad Lineal",5242,8.0,[["Colina",6657,11.3],["Concepción",5337,0.5],["Costillares",6203,3.4],["Pueblo Nuevo",4462,11.5],["Quintana",4975,1.8],["San Juan Bautista",6597,12.8],["San Pascual",5952,9.4],["Ventas",4778,7.5]]],
+ ["Fuencarral",5593,5.5,[["La Paz",5750,8.1],["Las Tablas",6098,6.0],["Mirasierra",6619,7.2],["Montecarmelo",6351,-1.0],["Peñagrande",5518,5.3],["Pilar",5536,3.1],["Tres Olivos - Valverde",4184,3.7]]],
+ ["Hortaleza",5440,7.0,[["Apóstol Santiago",4531,14.5],["Canillas",5087,3.8],["Conde Orgaz-Piovera",6458,8.3],["Palomas",5425,4.6],["Pinar del Rey",4908,10.2],["Sanchinarro",5840,4.3],["Valdebebas - Valdefuentes",6187,13.6],["Virgen del Cortijo - Manoteras",5604,9.7]]],
+ ["Latina",4045,6.5,[["Águilas",3822,9.4],["Aluche",3900,4.8],["Campamento",4118,14.9],["Los Cármenes",3746,-2.3],["Lucero",3954,15.8],["Puerta del Ángel",4497,3.2]]],
+ ["Moncloa",6317,1.3,[["Aravaca",5448,0.0],["Argüelles",7938,2.8],["Casa de Campo",6237,5.7],["Ciudad Universitaria",6151,4.8],["El Plantío",4405,14.7],["Valdemarín",6423,1.7],["Valdezarza",5203,5.4]]],
+ ["Moratalaz",4522,11.3,[["Fontarrón",4279,18.8],["Marroquina",4803,6.0],["Media Legua",4528,10.0],["Vinateros",4510,8.3]]],
+ ["Puente de Vallecas",3535,17.9,[["Entrevías",3072,25.4],["Numancia",3707,16.4],["Palomeras Bajas",3531,20.9],["Palomeras sureste",3494,15.9],["Portazgo",3700,21.3],["San Diego",3594,15.3]]],
+ ["Retiro",8515,-0.7,[["Adelfas",6322,2.1],["Estrella",6651,8.9],["Ibiza",9750,1.7],["Jerónimos",11834,-3.6],["Niño Jesús",8064,5.0],["Pacífico",6885,3.7]]],
+ ["San Blas",4146,5.2,[["Arcos",3766,13.8],["Canillejas",4044,3.6],["Hellín",3630,16.4],["Rejas",4372,-0.7],["Rosas",4714,-2.2],["Salvador",5125,-3.1],["Simancas",4239,8.9]]],
+ ["Tetuán",6161,6.6,[["Bellas Vistas",5612,8.0],["Berruguete",5383,7.7],["Cuatro Caminos",7056,6.6],["Cuzco-Castillejos",7286,1.7],["Valdeacederas",5210,3.0],["Ventilla-Almenara",5286,4.0]]],
+ ["Usera",3628,15.9,[["12 de Octubre-Orcasur",2698,12.5],["Almendrales",4022,14.3],["Moscardó",3971,9.9],["Orcasitas",3133,18.5],["Pradolongo",3709,18.2],["San Fermín",3557,24.9],["Zofío",3680,13.5]]],
+ ["Vicálvaro",4036,10.5,[["Ambroz",3700,8.4],["Casco Histórico de Vicálvaro",3725,9.8],["El Cañaveral",4655,8.6],["Valdebernardo - Valderrivas",4292,null]]],
+ ["Villa de Vallecas",3852,12.0,[["Casco Histórico de Vallecas",3439,15.0],["Ensanche de Vallecas - La Gavia",4242,6.1],["Santa Eugenia",3678,12.7]]],
+ ["Villaverde",3365,23.7,[["Butarque",3783,16.4],["Los Ángeles",3289,16.6],["Los Rosales",3629,32.4],["San Cristóbal",2923,42.1],["Villaverde Alto",3266,21.3]]],
+];
+const MADRID_M2 = 6458;
+
+const EXTRAS = [
+  ["garaje","car","Garaje"],["trastero","package","Trastero"],["piscina","waves","Piscina"],["portero","concierge-bell","Portero 24 h"],
+  ["conserje","key-round","Conserje"],["terraza","sun","Terraza"],["jardin","tree-deciduous","Jardín privado"],["vistas","mountain","Vistas despejadas"],
+  ["senorial","landmark","Finca señorial"],["clima","snowflake","Aire acondicionado"],["seguridad","shield-check","Urbanización cerrada"],["gimnasio","dumbbell","Zonas comunes"],
+];
+
+/* ================= ESTADO ================= */
+const S = {
+  distrito:null, barrio:null, tipo:null, m2:110, dorm:3, banos:2, estado:null,
+  planta:"2-4", orient:"exterior", ascensor:"si", extras:new Set(),
+  nombre:"", apellidos:"", email:"", tel:"", leadId:null, resultado:null,
+};
+const qp = new URLSearchParams(location.search);
+const ORIGEN = qp.get("origen") || qp.get("utm_source") || (qp.get("mc_id") ? "manychat" : "web");
+
+const PASOS = ["inicio","zona","tipo","tamano","estado","edificio","extras","contacto","calculando","resultado"];
+let actual = 0;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const eur = n => new Intl.NumberFormat("es-ES",{maximumFractionDigits:0}).format(n) + " €";
+const redondea = n => n >= 1e6 ? Math.round(n/5000)*5000 : Math.round(n/1000)*1000;
+
+/* ================= NAVEGACIÓN ================= */
+function ir(i){
+  const pant = $$(".pantalla");
+  pant[actual].classList.remove("activa"); pant[actual].classList.add("sale");
+  setTimeout(()=>pant.forEach(p=>p.classList.remove("sale")),400);
+  actual = i;
+  pant[i].classList.add("activa");
+  window.scrollTo({top:0,behavior:"instant"});
+  const preguntas = 7; // zona..contacto
+  const n = Math.min(Math.max(i,0),preguntas);
+  $("#barra").style.width = (i>=8 ? 100 : (n/preguntas)*100) + "%";
+  $("#pasoN").textContent = (i>=1 && i<=7) ? `${i} / ${preguntas}` : "";
+  $("#atras").hidden = !(i>=1 && i<=7);
+  $("#pie").style.display = (i>=8) ? "none" : "";
+  actualizaBoton();
+  if (PASOS[i]==="zona") setTimeout(()=>{ if(!S.barrio && matchMedia("(min-width:600px)").matches) $("#buscar").focus(); },350);
+}
+function valido(){
+  switch(PASOS[actual]){
+    case "zona": return !!S.barrio;
+    case "tipo": return !!S.tipo;
+    case "tamano": return S.m2>=20 && S.m2<=1500;
+    case "estado": return !!S.estado;
+    default: return true;
+  }
+}
+function actualizaBoton(){
+  const b = $("#siguiente"), p = PASOS[actual];
+  const textos = {inicio:"Empezar valoración", contacto:"Ver mi valoración", extras: S.extras.size ? "Continuar" : "No tiene extras, continuar"};
+  b.innerHTML = (textos[p] || "Continuar") + ' <span aria-hidden="true">→</span>';
+  b.disabled = !valido();
+}
+$("#siguiente").onclick = () => {
+  if (PASOS[actual]==="contacto") return enviarContacto();
+  if (valido()) ir(actual+1);
+};
+$("#atras").onclick = () => { if (actual>0) ir(actual-1); };
+const avanzaSolo = () => setTimeout(()=>{ if(valido()) ir(actual+1); }, 260);
+
+/* ================= PASO ZONA ================= */
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function pintaZona(){
+  const q = norm($("#buscar").value.trim());
+  const cont = $("#zonaLista");
+  if (q.length >= 2){
+    const hits = [];
+    ZONAS.forEach(([d,,,bs])=>bs.forEach(([b])=>{ if(norm(b).includes(q)||norm(d).includes(q)) hits.push([d,b]); }));
+    cont.innerHTML = hits.length
+      ? `<div class="chips">${hits.slice(0,30).map(([d,b])=>`<button class="chip ${S.barrio===b?"sel":""}" data-d="${d}" data-b="${b}">${b}<small>${d}</small></button>`).join("")}</div>`
+      : `<p class="vacio">No encontramos ese barrio. Prueba con el distrito, p. ej. "Chamberí".</p>`;
+    return;
+  }
+  if (!S.distrito){
+    cont.innerHTML = `<div class="bloque" style="margin-top:4px"><h3>Distrito</h3><div class="chips">${ZONAS.map(([d])=>`<button class="chip" data-dist="${d}">${d}</button>`).join("")}</div></div>`;
+  } else {
+    const z = ZONAS.find(z=>z[0]===S.distrito);
+    cont.innerHTML = `<div class="bloque" style="margin-top:4px"><h3>${S.distrito} · elige barrio</h3><div class="chips">${z[3].map(([b])=>`<button class="chip ${S.barrio===b?"sel":""}" data-d="${S.distrito}" data-b="${b}">${b}</button>`).join("")}</div>
+      <button class="chip" data-volver style="margin-top:14px;border-style:dashed">← Cambiar distrito</button></div>`;
+  }
+}
+$("#zonaLista").addEventListener("click", e=>{
+  const c = e.target.closest("button"); if(!c) return;
+  if (c.dataset.dist){ S.distrito=c.dataset.dist; S.barrio=null; pintaZona(); actualizaBoton(); return; }
+  if (c.hasAttribute("data-volver")){ S.distrito=null; S.barrio=null; pintaZona(); actualizaBoton(); return; }
+  if (c.dataset.b){ S.distrito=c.dataset.d; S.barrio=c.dataset.b; $("#buscar").value=""; pintaZona(); actualizaBoton(); avanzaSolo(); }
+});
+$("#buscar").addEventListener("input", pintaZona);
+pintaZona();
+
+/* ================= TARJETAS Y SEGMENTOS ================= */
+$$("[data-grupo]").forEach(g=>{
+  g.addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    g.querySelectorAll("button").forEach(x=>x.classList.toggle("sel", x===b));
+    S[g.dataset.grupo] = b.dataset.v;
+    if (g.dataset.grupo==="tipo"){
+      if (b.dataset.v==="atico"){ S.planta="5+"; marcaSeg("planta","5+"); }
+      if (b.dataset.v==="bajo"){ S.planta="baja"; marcaSeg("planta","baja"); }
+      if (b.dataset.v==="estudio"){ S.dorm=0; S.banos=1; $("#dorm").textContent=0; $("#banos").textContent=1; if(S.m2>=110) ponM2(45); }
+    }
+    actualizaBoton();
+    if (g.classList.contains("grid")) avanzaSolo();
+  });
+});
+function marcaSeg(grupo, v){ document.querySelectorAll(`[data-grupo="${grupo}"] button`).forEach(x=>x.classList.toggle("sel", x.dataset.v===v)); }
+
+/* ================= METROS ================= */
+function ponM2(v){ S.m2 = Math.round(v)||0; $("#m2").value = S.m2; $("#m2r").value = Math.min(Math.max(S.m2,25),600); actualizaBoton(); }
+$("#m2").addEventListener("input", e=>{ S.m2 = +e.target.value||0; $("#m2r").value = Math.min(Math.max(S.m2,25),600); actualizaBoton(); });
+$("#m2r").addEventListener("input", e=>ponM2(+e.target.value));
+$$("[data-step]").forEach(b=>b.onclick=()=>{
+  const k=b.dataset.step, lim = k==="dorm" ? [0,10] : [1,8];
+  S[k] = Math.min(lim[1], Math.max(lim[0], S[k] + +b.dataset.d));
+  $("#"+k).textContent = S[k];
+});
+
+/* ================= EXTRAS ================= */
+$("#extras").innerHTML = EXTRAS.map(([k,i,t])=>`<button class="ex" data-k="${k}"><span class="ico"><i data-lucide="${i}"></i></span>${t}</button>`).join("");
+lucide.createIcons({attrs:{"stroke-width":1.5}});
+$("#extras").addEventListener("click", e=>{
+  const b = e.target.closest(".ex"); if(!b) return;
+  const k=b.dataset.k; S.extras.has(k) ? S.extras.delete(k) : S.extras.add(k);
+  b.classList.toggle("sel", S.extras.has(k)); actualizaBoton();
+});
+
+/* ================= CONTACTO (precarga desde ManyChat) ================= */
+const PRE = {nombre:["nombre","first_name"], apellidos:["apellidos","apellido","last_name"], email:["email"], tel:["tel","telefono","phone"]};
+Object.entries(PRE).forEach(([id,keys])=>{ const v = keys.map(k=>qp.get(k)).find(Boolean); if(v && !/^\{\{.*\}\}$/.test(v)) $("#"+id).value = v; });
+
+function enviarContacto(){
+  const f = {
+    nombre: $("#nombre").value.trim(), apellidos: $("#apellidos").value.trim(),
+    email: $("#email").value.trim(), tel: $("#tel").value.trim(),
+  };
+  const ok = {
+    nombre: f.nombre.length>=2, apellidos: f.apellidos.length>=2,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email),
+    tel: f.tel.replace(/\D/g,"").length>=9,
+  };
+  Object.keys(ok).forEach(k=>$("#"+k).closest(".campo").classList.toggle("error", !ok[k]));
+  const acepto = $("#acepto").checked;
+  $("#checkWrap").classList.toggle("error", !acepto);
+  if (!Object.values(ok).every(Boolean) || !acepto){
+    const primero = Object.keys(ok).find(k=>!ok[k]); if(primero) $("#"+primero).focus();
+    return;
+  }
+  Object.assign(S, f);
+  S.leadId = "CAN-" + Date.now().toString(36).toUpperCase();
+  S.resultado = calcular();
+  enviarLead();
+  ir(PASOS.indexOf("calculando"));
+  const msgs = [`Analizando ${S.barrio}…`,"Comparando con viviendas similares…","Ajustando por estado y extras…","Preparando tu valoración…"];
+  msgs.forEach((m,i)=>setTimeout(()=>{$("#msgCarga").textContent=m},i*650));
+  setTimeout(()=>{ pintaResultado(); ir(PASOS.indexOf("resultado")); animaResultado(); }, msgs.length*650+150);
+}
+$$("#form input").forEach(i=>i.addEventListener("input",()=>i.closest(".campo")?.classList.remove("error")));
+$("#acepto").addEventListener("change",()=>$("#checkWrap").classList.remove("error"));
+
+/* ================= MODELO DE VALORACIÓN =================
+   Base: €/m² medio de oferta del barrio (idealista, sep 2026).
+   Coeficientes calibrados con anuncios reales de idealista por barrio y con el inventario
+   publicado de Canaima (en barrios prime, "a estrenar" se anuncia +30-60% sobre la media). */
+function calcular(){
+  const z = ZONAS.find(z=>z[0]===S.distrito);
+  const [ , m2Barrio, yoyBarrio] = z[3].find(b=>b[0]===S.barrio);
+  const prime = m2Barrio >= 9500;
+  const F = []; // [etiqueta, multiplicador]
+
+  const tipo = {piso:1, atico:1.10, duplex:1.04, bajo:0.92, estudio:1.03, chalet:0.95}[S.tipo];
+  const tipoTxt = {piso:"Piso",atico:"Ático",duplex:"Dúplex",bajo:"Bajo",estudio:"Estudio / loft",chalet:"Chalet o casa"}[S.tipo];
+  if (tipo!==1) F.push([tipoTxt, tipo]);
+
+  const m = S.m2;
+  const tam = m<45?1.12 : m<70?1.05 : m<=130?1 : m<=200?0.97 : 0.94;
+  if (tam!==1) F.push([m<70?"Superficie compacta (más demanda por m²)":"Superficie amplia (menos €/m²)", tam]);
+
+  const est = prime
+    ? {reformar:0.86, bueno:1, reformado:1.15, estrenar:1.40}[S.estado]
+    : {reformar:0.85, bueno:1, reformado:1.10, estrenar:1.22}[S.estado];
+  const estTxt = {reformar:"Para reformar",bueno:"Buen estado",reformado:"Reformado",estrenar:"A estrenar, reforma de diseño"}[S.estado];
+  if (est!==1) F.push([estTxt, est]);
+
+  if (S.orient==="interior") F.push(["Interior", 0.85]);
+  if (S.tipo!=="chalet"){
+    if (S.planta==="baja" && S.tipo!=="bajo") F.push(["Planta baja", 0.92]);
+    if (S.planta==="1") F.push(["Primera planta", 0.97]);
+    if (S.planta==="5+" && S.tipo!=="atico") F.push(["Planta alta", 1.04]);
+    if (S.ascensor==="no" && S.planta!=="baja") F.push(["Sin ascensor", S.planta==="1"?0.93:0.84]);
+  }
+
+  const pct = {piscina:.04, portero:.04, conserje:.02, terraza:S.tipo==="atico"?.03:.06, jardin:.06, vistas:.04,
+               senorial: prime ? .05 : .03, clima:.015, seguridad:.03, gimnasio:.02};
+  const nombres = Object.fromEntries(EXTRAS.map(([k,,t])=>[k,t]));
+  let extraPct = 0;
+  S.extras.forEach(k=>{ if(pct[k]){ extraPct += pct[k]; } });
+  extraPct = Math.min(extraPct, .25);
+
+  let mult = F.reduce((a,[,v])=>a*v,1) * (1+extraPct);
+  if (S.banos >= Math.max(2,S.dorm) ){ mult *= 1.02; }
+
+  const m2Est = m2Barrio * mult;
+  let valor = m2Est * m;
+  // Garaje y trastero: suman como importe (una plaza vale más en el centro)
+  const plaza = S.extras.has("garaje") && S.tipo!=="chalet" ? Math.min(75000, Math.max(15000, m2Barrio*4.8)) : 0;
+  const trastero = S.extras.has("trastero") ? Math.min(15000, Math.max(5000, m2Barrio*0.9)) : 0;
+  valor += plaza + trastero;
+
+  // Margen de negociación: los datos son precios de oferta, el cierre suele ser algo menor
+  valor *= 0.97;
+
+  const spread = S.estado==="estrenar" || prime ? 0.08 : 0.06;
+  const factores = F.map(([t,v])=>[t, Math.round((v-1)*100)]);
+  S.extras.forEach(k=>{
+    if (k==="garaje" && plaza) factores.push(["Garaje", "+"+eur(redondea(plaza))]);
+    else if (k==="trastero") factores.push(["Trastero", "+"+eur(redondea(trastero))]);
+    else if (pct[k]) factores.push([nombres[k], Math.round(pct[k]*100)]);
+  });
+
+  return {
+    valor: redondea(valor), min: redondea(valor*(1-spread)), max: redondea(valor*(1+spread)),
+    m2Est: Math.round(valor/m), m2Barrio, m2Distrito: z[1], yoyBarrio, yoyDistrito: z[2], factores,
+  };
+}
+
+/* ================= RESULTADO ================= */
+function pintaResultado(){
+  const R = S.resultado;
+  $("#resHola").textContent = `${S.nombre}, tu casa vale aproximadamente`;
+  $("#resMin").textContent = eur(R.min); $("#resMax").textContent = eur(R.max);
+  $("#resZona").textContent = `Canaima - ${S.barrio}`;
+  const tipoTxt = {piso:"Piso",atico:"Ático",duplex:"Dúplex",bajo:"Bajo",estudio:"Estudio",chalet:"Chalet"}[S.tipo];
+  $("#resPills").innerHTML = [S.barrio, `${S.m2} m²`, tipoTxt].map(t=>`<span class="pill">${t}</span>`).join("");
+
+  const filas = [["Tu casa",R.m2Est,true],[S.barrio,R.m2Barrio],[S.distrito,R.m2Distrito],["Madrid",MADRID_M2]];
+  const max = Math.max(...filas.map(f=>f[1]));
+  $("#compara").innerHTML = filas.map(([t,v,tu])=>`<div class="fila ${tu?"tu":""}"><span>${t}</span><div class="bar"><i data-w="${(v/max*100).toFixed(1)}"></i></div><span class="v">${new Intl.NumberFormat("es-ES").format(v)} €/m²</span></div>`).join("");
+
+  $("#factores").innerHTML =
+    `<li><span>Precio medio en ${S.barrio}</span><b>${new Intl.NumberFormat("es-ES").format(R.m2Barrio)} €/m²</b></li>` +
+    (R.factores.length ? R.factores.map(([t,v])=>{
+      const s = typeof v==="number" ? (v>0?`+${v}%`:`${v}%`) : v;
+      const cls = (typeof v==="number" ? v>0 : true) ? "mas" : "menos";
+      return `<li><span>${t}</span><span class="${cls}">${s}</span></li>`;
+    }).join("") : `<li><span>Sin ajustes relevantes</span><span>en línea con el barrio</span></li>`);
+
+  const y = R.yoyBarrio ?? R.yoyDistrito;
+  const donde = R.yoyBarrio!=null ? S.barrio : S.distrito;
+  $("#tendencia").innerHTML = y>0
+    ? `En el último año, el precio en <b>${donde}</b> ha subido un <b>${String(y).replace(".",",")}%</b>. Saber vender en el momento adecuado también forma parte del precio.`
+    : `En el último año, el precio en <b>${donde}</b> se ha mantenido estable (${String(y).replace(".",",")}%). En un mercado así, la estrategia de venta marca la diferencia.`;
+
+  const cta = $("#cta");
+  cta.hidden = R.valor < CONFIG.UMBRAL_CTA;
+  cta.classList.remove("hecho");
+}
+function animaResultado(){
+  const fin = S.resultado.valor, t0 = performance.now(), dur = 1300;
+  const paso = t=>{ const p = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-p,3);
+    $("#resValor").textContent = eur(Math.round(fin*e/1000)*1000);
+    if (p<1) requestAnimationFrame(paso); else $("#resValor").textContent = eur(fin); };
+  requestAnimationFrame(paso);
+  setTimeout(()=>$$("#compara .bar i").forEach(i=>i.style.width=i.dataset.w+"%"),150);
+}
+
+/* ================= CTA ASESORAMIENTO ================= */
+function pideAsesoramiento(via){
+  enviar({tipo:"asesoramiento", leadId:S.leadId, via});
+  $("#cta").classList.add("hecho");
+}
+$("#ctaWa").onclick = ()=>{
+  pideAsesoramiento("whatsapp");
+  const msg = `Hola, soy ${S.nombre} ${S.apellidos}. He hecho la valoración online de mi vivienda en ${S.barrio} (${S.m2} m², estimación ${eur(S.resultado.valor)}) y me gustaría que me asesoréis.`;
+  window.open(`https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent(msg)}`,"_blank");
+};
+$("#ctaTel").onclick = ()=>pideAsesoramiento("llamada");
+$("#reiniciar").onclick = ()=>location.reload();
+
+/* ================= ENVÍO A GOOGLE SHEETS ================= */
+function enviar(datos){
+  if (!CONFIG.SHEETS_URL){ console.info("[Canaima] SHEETS_URL sin configurar. Datos:", datos); return; }
+  const body = JSON.stringify(datos);
+  // text/plain evita el preflight CORS de Apps Script
+  if (navigator.sendBeacon && navigator.sendBeacon(CONFIG.SHEETS_URL, new Blob([body],{type:"text/plain"}))) return;
+  fetch(CONFIG.SHEETS_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body}).catch(()=>{});
+}
+function enviarLead(){
+  const R = S.resultado;
+  const nombres = Object.fromEntries(EXTRAS.map(([k,,t])=>[k,t]));
+  enviar({
+    tipo:"lead", leadId:S.leadId,
+    nombre:S.nombre, apellidos:S.apellidos, email:S.email, telefono:S.tel,
+    distrito:S.distrito, barrio:S.barrio, tipoVivienda:S.tipo, m2:S.m2, dormitorios:S.dorm, banos:S.banos,
+    estado:S.estado, planta:S.planta, orientacion:S.orient, ascensor:S.ascensor,
+    extras:[...S.extras].map(k=>nombres[k]).join(", "),
+    valor:R.valor, min:R.min, max:R.max, m2Estimado:R.m2Est, m2Barrio:R.m2Barrio,
+    altoValor: R.valor >= CONFIG.UMBRAL_CTA,
+    origen:ORIGEN, manychatId: qp.get("mc_id")||"", consentimiento:true, pagina:location.href.split("?")[0],
+  });
+}
+
+lucide.createIcons({attrs:{"stroke-width":1.5}});
+ir(0);
+</script>
+</body>
+</html>
